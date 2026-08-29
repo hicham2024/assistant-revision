@@ -76,6 +76,8 @@ const uiText = {
     levelPending: "Niveau à détecter",
     subjectPending: "Matière",
     emptyOutput: "Colle un cours ou ajoute une photo, puis lance la génération.",
+    aiGenerating: "Analyse intelligente du cours en cours...",
+    aiFallback: "L'IA n'est pas disponible pour le moment. Module généré avec l'analyse locale.",
     jsonSummary: "Voir le JSON",
     jsonPending: "Le JSON apparaîtra ici.",
     emptyTitle: "Aucun cours fourni",
@@ -137,6 +139,8 @@ const uiText = {
     levelPending: "Niveau detecteren",
     subjectPending: "Vak",
     emptyOutput: "Plak een les of voeg een foto toe en start daarna de generatie.",
+    aiGenerating: "Slimme analyse van de les wordt uitgevoerd...",
+    aiFallback: "De AI is momenteel niet beschikbaar. De module is gemaakt met de lokale analyse.",
     jsonSummary: "JSON bekijken",
     jsonPending: "De JSON verschijnt hier.",
     emptyTitle: "Geen les ingevoerd",
@@ -198,6 +202,8 @@ const uiText = {
     levelPending: "تحديد المستوى",
     subjectPending: "المادة",
     emptyOutput: "ألصق درسا أو أضف صورا، ثم ابدأ إنشاء وحدة المراجعة.",
+    aiGenerating: "يتم تحليل الدرس بالذكاء الاصطناعي...",
+    aiFallback: "الذكاء الاصطناعي غير متاح حاليا. تم إنشاء الوحدة بالتحليل المحلي.",
     jsonSummary: "عرض JSON",
     jsonPending: "سيظهر JSON هنا.",
     emptyTitle: "لم يتم إدخال أي درس",
@@ -259,6 +265,8 @@ const uiText = {
     levelPending: "Nivel por detectar",
     subjectPending: "Asignatura",
     emptyOutput: "Pega una clase o añade fotos y luego crea el módulo.",
+    aiGenerating: "Análisis inteligente de la clase en curso...",
+    aiFallback: "La IA no está disponible por el momento. El módulo se generó con el análisis local.",
     jsonSummary: "Ver JSON",
     jsonPending: "El JSON aparecerá aquí.",
     emptyTitle: "No se ha introducido ninguna clase",
@@ -320,6 +328,8 @@ const uiText = {
     levelPending: "Livello da rilevare",
     subjectPending: "Materia",
     emptyOutput: "Incolla una lezione o aggiungi foto, poi crea il modulo.",
+    aiGenerating: "Analisi intelligente della lezione in corso...",
+    aiFallback: "L'IA non è disponibile al momento. Il modulo è stato generato con l'analisi locale.",
     jsonSummary: "Vedi JSON",
     jsonPending: "Il JSON apparirà qui.",
     emptyTitle: "Nessuna lezione inserita",
@@ -381,6 +391,8 @@ const uiText = {
     levelPending: "Level to detect",
     subjectPending: "Subject",
     emptyOutput: "Paste a course or add photos, then generate the module.",
+    aiGenerating: "Smart course analysis in progress...",
+    aiFallback: "AI is not available right now. The module was generated with local analysis.",
     jsonSummary: "View JSON",
     jsonPending: "The JSON will appear here.",
     emptyTitle: "No course provided",
@@ -936,15 +948,16 @@ function renderModule(module) {
   }
 
   const concepts = module.summary.key_concepts
-    .map((item) => `<li><strong>${escapeHtml(item.term)}</strong> : ${escapeHtml(item.definition)}</li>`)
+    .map((item) => `<li><strong>${escapeHtml(item.term || "")}</strong> : ${escapeHtml(item.definition || "")}</li>`)
     .join("");
   const bullets = module.summary.bullet_points
     .map((item) => `<li>${escapeHtml(item)}</li>`)
     .join("");
   const exercises = module.basic_exercises
     .map((item) => {
-      const options = item.options.length
-        ? `<ul>${item.options.map((option) => `<li>${escapeHtml(option)}</li>`).join("")}</ul>`
+      const answerOptions = Array.isArray(item.options) ? item.options : [];
+      const options = answerOptions.length
+        ? `<ul>${answerOptions.map((option) => `<li>${escapeHtml(option)}</li>`).join("")}</ul>`
         : "";
       return `<div class="exercise"><strong>${item.id}. ${escapeHtml(item.question)}</strong>${options}<p><strong>${text.sections.answer} :</strong> ${escapeHtml(item.correct_answer)}</p><p>${escapeHtml(item.explanation)}</p></div>`;
     })
@@ -1157,9 +1170,38 @@ function setToolButtons(enabled) {
   });
 }
 
-generateButton.addEventListener("click", () => {
+function getSelectedLevelLabel() {
+  return levelLabels[currentLanguage][levelSelect.value] || levelLabels[currentLanguage].auto;
+}
+
+async function generateAiModule(text) {
+  const response = await fetch("/.netlify/functions/generate-module", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      text,
+      language: currentLanguage,
+      level: levelSelect.value,
+      levelLabel: getSelectedLevelLabel(),
+      revisionType: revisionType.value
+    })
+  });
+
+  if (!response.ok) {
+    throw new Error("AI generation failed");
+  }
+
+  const data = await response.json();
+  if (!data.module) {
+    throw new Error("Missing AI module");
+  }
+  return data.module;
+}
+
+generateButton.addEventListener("click", async () => {
   const textForUi = uiText[currentLanguage];
   const text = courseText.value.trim();
+  ocrStatus.textContent = "";
   if (!text) {
     currentJson = {
       detected_level: textForUi.noLevel,
@@ -1174,7 +1216,19 @@ generateButton.addEventListener("click", () => {
       advanced_assignment: []
     };
   } else {
-    currentJson = makeModule(text);
+    generateButton.disabled = true;
+    setToolButtons(false);
+    friendlyOutput.textContent = textForUi.aiGenerating;
+    jsonOutput.textContent = textForUi.aiGenerating;
+
+    try {
+      currentJson = await generateAiModule(text);
+    } catch {
+      currentJson = makeModule(text);
+      ocrStatus.textContent = textForUi.aiFallback;
+    } finally {
+      generateButton.disabled = false;
+    }
   }
 
   levelBadge.textContent = currentJson.detected_level;

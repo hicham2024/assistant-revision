@@ -33,12 +33,23 @@ Les niveaux scolaires changent selon le pays ou la région choisie :
 - Choix de la langue du cours pour améliorer la lecture OCR.
 - Choix automatique ou manuel du niveau scolaire.
 - Choix du type de révision : module complet, résumé court, fiche mémo ou quiz rapide.
+- Génération intelligente par API IA via une fonction Netlify sécurisée.
 - Export PDF via l'impression du navigateur.
 - Lecture audio du résumé.
 - Flashcards générées à partir des concepts clés.
 - Quiz interactif avec correction.
 - Sauvegarde locale des cours dans le navigateur.
 - Gestion des cours longs : compteur de mots, estimation du nombre de pages, détection des cours de plusieurs pages et résumé structuré par sections.
+
+## Connexion IA
+
+La clé API ne doit jamais être placée dans `app.js` ou dans GitHub. Elle doit être enregistrée dans Netlify :
+
+- Nom de la variable : `OPENAI_API_KEY`
+- Portée : tous les contextes de déploiement
+- Secret : activé
+
+L'application appelle ensuite la fonction `netlify/functions/generate-module.mjs`. Si l'API IA n'est pas disponible, l'application garde l'analyse locale comme solution de secours.
 
 ## Publication sur les stores
 

@@ -1,9 +1,9 @@
-const CACHE_NAME = "assistant-revision-v11";
+const CACHE_NAME = "assistant-revision-v13";
 const ASSETS = [
   "./",
   "./index.html",
-  "./styles.css?v=12",
-  "./app.js?v=12",
+  "./styles.css?v=14",
+  "./app.js?v=14",
   "./manifest.webmanifest",
   "./assets/icon.svg"
 ];
