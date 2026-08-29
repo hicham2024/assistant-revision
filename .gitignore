@@ -1,0 +1,8 @@
+audit-product-design/
+node_modules/
+.netlify/
+.repo/
+.git/
+dist/
+.DS_Store
+Thumbs.db

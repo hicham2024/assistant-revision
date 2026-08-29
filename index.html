@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#176c5f" />
+    <title>Assistant de révision</title>
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="icon" href="assets/icon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="styles.css?v=6" />
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js" defer></script>
+  </head>
+  <body>
+    <main class="app">
+      <section class="workspace" aria-label="Générateur de module de révision">
+        <header class="topbar">
+          <div>
+            <p id="appEyebrow" class="eyebrow">Application éducative</p>
+            <h1 id="appTitle">Assistant de révision</h1>
+          </div>
+          <div class="top-actions">
+            <label id="languageLabel" class="language-label" for="languageSelect">Langue</label>
+            <select id="languageSelect" aria-label="Langue de l'application">
+              <option value="fr">Français</option>
+              <option value="nl">Nederlands</option>
+            </select>
+            <button id="copyJson" class="icon-button" type="button" title="Copier le JSON" disabled>
+              Copier
+            </button>
+          </div>
+        </header>
+
+        <div class="layout">
+          <section class="input-panel" aria-label="Cours à analyser">
+            <div class="mode-tabs" role="tablist" aria-label="Type d'entrée">
+              <button id="textMode" class="tab active" type="button">Coller le texte</button>
+              <button id="imageMode" class="tab" type="button">Photo du cours</button>
+            </div>
+
+            <div id="imageTools" class="image-tools" hidden>
+              <label id="scanImageLabel" for="scanImage">Image scannée avec le téléphone</label>
+              <input id="scanImage" type="file" accept="image/*" capture="environment" />
+              <div id="imagePreview" class="image-preview">
+                <span id="emptyImageText">Aucune image sélectionnée</span>
+              </div>
+              <button id="extractText" class="secondary" type="button" disabled>Lire le texte de l'image</button>
+              <p id="ocrStatus" class="status" aria-live="polite"></p>
+            </div>
+
+            <label id="courseTextLabel" for="courseText">Texte du cours</label>
+            <textarea
+              id="courseText"
+              spellcheck="true"
+              placeholder="Colle ici le texte du cours, ou utilise une photo pour remplir ce champ automatiquement..."
+            ></textarea>
+            <div class="actions">
+              <button id="generate" type="button">Générer le module</button>
+              <button id="clear" class="secondary" type="button">Effacer</button>
+            </div>
+          </section>
+
+          <section class="output-panel" aria-label="Résultat">
+            <div class="result-header">
+              <div>
+                <span id="levelBadge" class="badge">Niveau à détecter</span>
+                <span id="subjectBadge" class="badge muted">Matière</span>
+              </div>
+            </div>
+            <div id="friendlyOutput" class="friendly-output" aria-live="polite">
+              Colle un cours ou ajoute une photo, puis lance la génération.
+            </div>
+            <details class="json-details">
+              <summary id="jsonSummary">Voir le JSON</summary>
+              <pre id="jsonOutput">Le JSON apparaîtra ici.</pre>
+            </details>
+          </section>
+        </div>
+      </section>
+    </main>
+
+    <script src="app.js?v=6"></script>
+  </body>
+</html>
