@@ -16,6 +16,7 @@ const ocrStatus = document.getElementById("ocrStatus");
 const languageSelect = document.getElementById("languageSelect");
 const appEyebrow = document.getElementById("appEyebrow");
 const appTitle = document.getElementById("appTitle");
+const appSubtitle = document.getElementById("appSubtitle");
 const languageLabel = document.getElementById("languageLabel");
 const scanImageLabel = document.getElementById("scanImageLabel");
 const courseTextLabel = document.getElementById("courseTextLabel");
@@ -48,6 +49,7 @@ const uiText = {
     dir: "ltr",
     appEyebrow: "Application éducative",
     appTitle: "Assistant de révision",
+    appSubtitle: "Transforme un cours en résumé, exercices et devoir.",
     languageLabel: "Langue",
     copy: "Copier",
     copied: "Copié",
@@ -111,6 +113,7 @@ const uiText = {
     dir: "ltr",
     appEyebrow: "Educatieve applicatie",
     appTitle: "Studie-assistent",
+    appSubtitle: "Zet een les om in een samenvatting, oefeningen en een taak.",
     languageLabel: "Taal",
     copy: "Kopiëren",
     copied: "Gekopieerd",
@@ -174,6 +177,7 @@ const uiText = {
     dir: "rtl",
     appEyebrow: "تطبيق تعليمي",
     appTitle: "مساعد المراجعة",
+    appSubtitle: "حوّل الدرس إلى ملخص وتمارين وواجب.",
     languageLabel: "اللغة",
     copy: "نسخ",
     copied: "تم النسخ",
@@ -237,6 +241,7 @@ const uiText = {
     dir: "ltr",
     appEyebrow: "Aplicación educativa",
     appTitle: "Asistente de repaso",
+    appSubtitle: "Convierte una clase en resumen, ejercicios y tarea.",
     languageLabel: "Idioma",
     copy: "Copiar",
     copied: "Copiado",
@@ -300,6 +305,7 @@ const uiText = {
     dir: "ltr",
     appEyebrow: "Applicazione educativa",
     appTitle: "Assistente per il ripasso",
+    appSubtitle: "Trasforma una lezione in riassunto, esercizi e compito.",
     languageLabel: "Lingua",
     copy: "Copia",
     copied: "Copiato",
@@ -363,6 +369,7 @@ const uiText = {
     dir: "ltr",
     appEyebrow: "Educational app",
     appTitle: "Revision assistant",
+    appSubtitle: "Turn a course into a summary, exercises and homework.",
     languageLabel: "Language",
     copy: "Copy",
     copied: "Copied",
@@ -1075,6 +1082,7 @@ function applyLanguage(language) {
   document.documentElement.dir = text.dir;
   appEyebrow.textContent = text.appEyebrow;
   appTitle.textContent = text.appTitle;
+  appSubtitle.textContent = text.appSubtitle;
   languageLabel.textContent = text.languageLabel;
   copyButton.textContent = text.copy;
   copyButton.title = text.copy;
