@@ -61,7 +61,7 @@ const uiText = {
     generate: "Générer le module",
     clear: "Effacer",
     courseLanguageLabel: "Langue du cours",
-    levelSelectLabel: "Niveau - Wallonie",
+    levelSelectLabel: "Niveau",
     revisionTypeLabel: "Type de révision",
     save: "Sauvegarder",
     saved: "Sauvegardé",
@@ -122,7 +122,7 @@ const uiText = {
     generate: "Module maken",
     clear: "Wissen",
     courseLanguageLabel: "Taal van de les",
-    levelSelectLabel: "Niveau - Vlaanderen",
+    levelSelectLabel: "Niveau",
     revisionTypeLabel: "Type herhaling",
     save: "Opslaan",
     saved: "Opgeslagen",
@@ -347,6 +347,67 @@ const uiText = {
     ocrFail: "Impossibile leggere queste immagini. Prova foto più nitide o incolla il testo.",
     selectedImages: (count) => `${count} immagin${count > 1 ? "i" : "e"} selezionat${count > 1 ? "e" : "a"}`,
     pageLabel: (index) => `Pagina ${index}`
+  },
+  en: {
+    htmlLang: "en",
+    dir: "ltr",
+    appEyebrow: "Educational app",
+    appTitle: "Revision assistant",
+    languageLabel: "Language",
+    copy: "Copy",
+    copied: "Copied",
+    textMode: "Paste text",
+    imageMode: "Course photos",
+    scanImageLabel: "Scanned images from the phone",
+    noImage: "No image selected",
+    extractText: "Read text from images",
+    courseTextLabel: "Course text",
+    placeholder: "Paste the course text here, or use photos to fill this field automatically...",
+    generate: "Generate module",
+    clear: "Clear",
+    courseLanguageLabel: "Course language",
+    levelSelectLabel: "Level",
+    revisionTypeLabel: "Revision type",
+    save: "Save",
+    saved: "Saved",
+    exportPdf: "PDF",
+    audio: "Audio",
+    flashcards: "Flashcards",
+    quiz: "Quiz",
+    savedTitle: "Saved courses",
+    noSaved: "No saved courses.",
+    load: "Open",
+    remove: "Delete",
+    levelPending: "Level to detect",
+    subjectPending: "Subject",
+    emptyOutput: "Paste a course or add photos, then generate the module.",
+    jsonSummary: "View JSON",
+    jsonPending: "The JSON will appear here.",
+    emptyTitle: "No course provided",
+    emptyTakeaway: "Paste the extracted course text to generate a revision module.",
+    noLevel: "not determined",
+    noSubject: "not determined",
+    sections: {
+      important: "Important points",
+      concepts: "Key concepts",
+      exercises: "Exercises",
+      assignment: "Homework",
+      answer: "Answer",
+      guide: "Guide",
+      flashcards: "Flashcards",
+      quiz: "Interactive quiz",
+      showAnswer: "Show answer",
+      hideAnswer: "Hide",
+      check: "Check",
+      score: "Score"
+    },
+    ocrNeedsNet: "Image reading requires an internet connection the first time it loads.",
+    ocrReading: "Reading text...",
+    ocrProgress: "Reading text",
+    ocrDone: "Texts read. You can check them quickly and then generate the module.",
+    ocrFail: "These images could not be read. Try clearer photos or paste the text.",
+    selectedImages: (count) => `${count} image${count > 1 ? "s" : ""} selected`,
+    pageLabel: (index) => `Page ${index}`
   }
 };
 
@@ -380,6 +441,12 @@ const longCourseText = {
     long: "Lezione lunga rilevata: il riassunto sarà organizzato per sezioni.",
     sectionsTitle: "Schema della lezione",
     sectionLabel: (index) => `Sezione ${index}`
+  },
+  en: {
+    stats: (words, pages) => `about ${words} words · ${pages} estimated page${pages > 1 ? "s" : ""}`,
+    long: "Long course detected: the summary will be organized by sections.",
+    sectionsTitle: "Course outline",
+    sectionLabel: (index) => `Section ${index}`
   }
 };
 
@@ -391,23 +458,23 @@ if ("serviceWorker" in navigator) {
 
 const subjectRules = [
   {
-    subject: { fr: "Histoire-géographie", nl: "Geschiedenis-aardrijkskunde", ar: "التاريخ والجغرافيا", es: "Historia y geografía", it: "Storia e geografia" },
+    subject: { fr: "Histoire-géographie", nl: "Geschiedenis-aardrijkskunde", ar: "التاريخ والجغرافيا", es: "Historia y geografía", it: "Storia e geografia", en: "History and geography" },
     keywords: ["révolution", "guerre", "empire", "frontière", "carte", "territoire", "population", "siècle", "colonisation"]
   },
   {
-    subject: { fr: "Sciences", nl: "Wetenschappen", ar: "العلوم", es: "Ciencias", it: "Scienze" },
+    subject: { fr: "Sciences", nl: "Wetenschappen", ar: "العلوم", es: "Ciencias", it: "Scienze", en: "Science" },
     keywords: ["cellule", "énergie", "molécule", "expérience", "hypothèse", "organisme", "réaction", "force", "vitesse"]
   },
   {
-    subject: { fr: "Mathématiques", nl: "Wiskunde", ar: "الرياضيات", es: "Matemáticas", it: "Matematica" },
+    subject: { fr: "Mathématiques", nl: "Wiskunde", ar: "الرياضيات", es: "Matemáticas", it: "Matematica", en: "Mathematics" },
     keywords: ["équation", "fonction", "triangle", "probabilité", "dérivée", "fraction", "angle", "théorème", "calcul"]
   },
   {
-    subject: { fr: "Français / littérature", nl: "Frans / literatuur", ar: "اللغة والأدب", es: "Lengua y literatura", it: "Lingua e letteratura" },
+    subject: { fr: "Français / littérature", nl: "Frans / literatuur", ar: "اللغة والأدب", es: "Lengua y literatura", it: "Lingua e letteratura", en: "Language and literature" },
     keywords: ["auteur", "narrateur", "poème", "roman", "figure de style", "texte", "argumentation", "champ lexical"]
   },
   {
-    subject: { fr: "Économie / gestion", nl: "Economie / beheer", ar: "الاقتصاد والتدبير", es: "Economía / gestión", it: "Economia / gestione" },
+    subject: { fr: "Économie / gestion", nl: "Economie / beheer", ar: "الاقتصاد والتدبير", es: "Economía / gestión", it: "Economia / gestione", en: "Economics / management" },
     keywords: ["marché", "entreprise", "coût", "prix", "demande", "offre", "profit", "client", "production"]
   }
 ];
@@ -602,23 +669,61 @@ const contentText = {
     assignmentTitle: "Analisi guidata della lezione",
     assignmentInstructions: "Scrivi un paragrafo strutturato che presenti l'idea principale della lezione, spieghi almeno due concetti importanti e usi un esempio preciso per giustificare il ragionamento.",
     assignmentGuide: "Inizia presentando il tema generale. Definisci poi due concetti chiave con precisione. Aggiungi un esempio tratto dalla lezione o coerente con l'argomento. Concludi con una frase di sintesi che mostri il collegamento tra i concetti."
+  },
+  en: {
+    generalSubject: "General course",
+    higher: "university / higher education",
+    highSchool: "upper secondary",
+    middleSchool: "lower secondary",
+    primary: "primary school",
+    fallbackTitle: (subject) => `Revision module - ${subject}`,
+    fallbackConcepts: ["main concept", "key idea", "method"],
+    subjectConcepts: (subject) => [subject, "key concept", "reasoning"],
+    conceptDefinition: "Important part of the course that the student should be able to explain in their own words and connect to examples.",
+    fallbackSummary: "The course presents several important ideas that should be understood, memorized and reused in exercises. The goal is to identify the main ideas, learn the essential vocabulary and practise explaining the links between concepts.",
+    fallbackBullets: [
+      "Identify the key words and definitions in the course.",
+      "Understand the links between the main ideas.",
+      "Rephrase the course in clear and precise sentences.",
+      "Practise with short questions before moving to a longer assignment."
+    ],
+    explainConcept: (term) => `Explain the following concept in your own words: ${term}.`,
+    conceptAnswer: (term) => `A correct answer defines ${term} and makes a clear link with the course.`,
+    conceptExplanation: "The goal is to check real understanding, not only memorization.",
+    trueFalseQuestion: "Examples in the course help students understand the main concepts better.",
+    trueAnswer: "True",
+    trueExplanation: "An example makes an idea more concrete and shows how to use it.",
+    mcqQuestion: "What is the best way to revise this course?",
+    mcqOptions: [
+      "Learn a few words without understanding them",
+      "Identify key concepts, rephrase them and practise",
+      "Read only the title"
+    ],
+    mcqAnswer: "Identify key concepts, rephrase them and practise",
+    mcqExplanation: "Effective revision combines understanding, active memorization and application.",
+    ideasQuestion: "Name two important ideas from this course.",
+    ideasAnswer: "Two ideas found in the summary or in the important points.",
+    ideasExplanation: "This question helps separate central ideas from secondary details.",
+    assignmentTitle: "Guided course analysis",
+    assignmentInstructions: "Write a structured paragraph presenting the main idea of the course, explaining at least two important concepts and using a precise example to support your reasoning.",
+    assignmentGuide: "Start by introducing the general topic. Then define two key concepts precisely. Add an example from the course or one that fits the topic. Finish with a synthesis sentence showing the link between the concepts."
   }
 };
 
 const levelLabels = {
   fr: {
     auto: "Auto",
-    primary: "enseignement primaire - Wallonie",
-    middle: "enseignement secondaire inférieur - Wallonie",
-    high: "enseignement secondaire supérieur - Wallonie",
-    higher: "enseignement supérieur - Wallonie"
+    primary: "enseignement primaire",
+    middle: "enseignement secondaire inférieur",
+    high: "enseignement secondaire supérieur",
+    higher: "enseignement supérieur"
   },
   nl: {
     auto: "Auto",
-    primary: "lager onderwijs - Vlaanderen",
-    middle: "secundair onderwijs eerste graad - Vlaanderen",
-    high: "secundair onderwijs tweede/derde graad - Vlaanderen",
-    higher: "hoger onderwijs - Vlaanderen"
+    primary: "lager onderwijs",
+    middle: "secundair onderwijs eerste graad",
+    high: "secundair onderwijs tweede/derde graad",
+    higher: "hoger onderwijs"
   },
   ar: {
     auto: "تلقائي",
@@ -640,6 +745,13 @@ const levelLabels = {
     middle: "Scuola secondaria di primo grado - Italia",
     high: "Scuola secondaria di secondo grado - Italia",
     higher: "Università / istruzione superiore - Italia"
+  },
+  en: {
+    auto: "Auto",
+    primary: "Primary school",
+    middle: "Lower secondary",
+    high: "Upper secondary",
+    higher: "University / higher education"
   }
 };
 
@@ -1007,7 +1119,8 @@ function updateOptionLabels() {
       nl: ["Auto", "Frans", "Nederlands", "Arabisch", "Spaans", "Italiaans", "Engels"],
       ar: ["تلقائي", "الفرنسية", "الهولندية", "العربية", "الإسبانية", "الإيطالية", "الإنجليزية"],
       es: ["Auto", "Francés", "Neerlandés", "Árabe", "Español", "Italiano", "Inglés"],
-      it: ["Auto", "Francese", "Olandese", "Arabo", "Spagnolo", "Italiano", "Inglese"]
+      it: ["Auto", "Francese", "Olandese", "Arabo", "Spagnolo", "Italiano", "Inglese"],
+      en: ["Auto", "French", "Dutch", "Arabic", "Spanish", "Italian", "English"]
     }[currentLanguage],
     levelSelect: [
       levelLabels[currentLanguage].auto,
@@ -1021,7 +1134,8 @@ function updateOptionLabels() {
       nl: ["Volledige module", "Korte samenvatting", "Memofiche", "Snelle quiz"],
       ar: ["وحدة كاملة", "ملخص قصير", "بطاقة مراجعة", "اختبار سريع"],
       es: ["Módulo completo", "Resumen corto", "Ficha de repaso", "Quiz rápido"],
-      it: ["Modulo completo", "Riassunto breve", "Scheda memo", "Quiz rapido"]
+      it: ["Modulo completo", "Riassunto breve", "Scheda memo", "Quiz rapido"],
+      en: ["Complete module", "Short summary", "Memo sheet", "Quick quiz"]
     }[currentLanguage]
   };
 
@@ -1230,7 +1344,8 @@ speakSummary.addEventListener("click", () => {
     nl: "nl-BE",
     ar: "ar-MA",
     es: "es-ES",
-    it: "it-IT"
+    it: "it-IT",
+    en: "en-US"
   };
   utterance.lang = speechLang[currentLanguage];
   window.speechSynthesis.speak(utterance);

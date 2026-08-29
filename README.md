@@ -16,15 +16,16 @@ Le projet contient déjà une base PWA :
 
 ## Langues
 
-L'interface propose français Wallonie, néerlandais Flandre, arabe Maroc, espagnol Espagne et italien Italie. Le résumé, les exercices, le devoir, les messages d'aide et le JSON généré suivent la langue sélectionnée.
+L'interface propose français, néerlandais, arabe Maroc, espagnol Espagne, italien Italie et anglais. Le résumé, les exercices, le devoir, les messages d'aide et le JSON généré suivent la langue sélectionnée.
 
 Les niveaux scolaires changent selon le pays ou la région choisie :
 
-- Français : enseignement primaire, secondaire inférieur, secondaire supérieur, enseignement supérieur - Wallonie.
-- Néerlandais : lager onderwijs, secundair onderwijs eerste graad, secundair onderwijs tweede/derde graad, hoger onderwijs - Vlaanderen.
+- Français : enseignement primaire, secondaire inférieur, secondaire supérieur, enseignement supérieur.
+- Néerlandais : lager onderwijs, secundair onderwijs eerste graad, secundair onderwijs tweede/derde graad, hoger onderwijs.
 - Arabe : التعليم الابتدائي، الثانوي الإعدادي، الثانوي التأهيلي، التعليم العالي - المغرب.
 - Espagnol : Educación Primaria, ESO, Bachillerato, Universidad / formación superior - España.
 - Italien : Scuola primaria, Scuola secondaria di primo grado, Scuola secondaria di secondo grado, Università / istruzione superiore - Italia.
+- Anglais : Primary school, Lower secondary, Upper secondary, University / higher education.
 
 ## Options de révision
 
