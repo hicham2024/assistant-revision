@@ -51,6 +51,11 @@ La clé API ne doit jamais être placée dans `app.js` ou dans GitHub. Elle doit
 
 L'application appelle ensuite la fonction `netlify/functions/generate-module.mjs`. Si l'API IA n'est pas disponible, l'application garde l'analyse locale comme solution de secours.
 
+Par défaut, la fonction utilise `gpt-5.6-luna`, un modèle rapide adapté aux usages fréquents. Pour changer de modèle sans modifier le code, ajouter aussi une variable Netlify optionnelle :
+
+- Nom de la variable : `OPENAI_MODEL`
+- Exemple de valeur : `gpt-5.6-luna`
+
 ## Publication sur les stores
 
 Pour publier sur les stores, il faut créer une enveloppe mobile/desktop autour de cette application web. Le chemin recommandé est Capacitor :
