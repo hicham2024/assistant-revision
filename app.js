@@ -31,6 +31,7 @@ const exportPdf = document.getElementById("exportPdf");
 const speakSummary = document.getElementById("speakSummary");
 const showFlashcards = document.getElementById("showFlashcards");
 const startQuiz = document.getElementById("startQuiz");
+const toolstrip = document.getElementById("toolstrip");
 const studyTools = document.getElementById("studyTools");
 const savedTitle = document.getElementById("savedTitle");
 const savedCourses = document.getElementById("savedCourses");
@@ -1036,7 +1037,8 @@ function updateOptionLabels() {
 }
 
 function setToolButtons(enabled) {
-  [saveCourse, exportPdf, speakSummary, showFlashcards, startQuiz].forEach((button) => {
+  toolstrip.hidden = !enabled;
+  [copyButton, saveCourse, exportPdf, speakSummary, showFlashcards, startQuiz].forEach((button) => {
     button.disabled = !enabled;
   });
 }
@@ -1065,7 +1067,6 @@ generateButton.addEventListener("click", () => {
   subjectBadge.textContent = currentJson.subject;
   jsonOutput.textContent = JSON.stringify(currentJson, null, 2);
   renderModule(currentJson);
-  copyButton.disabled = false;
   setToolButtons(Boolean(text));
 });
 
@@ -1083,7 +1084,6 @@ clearButton.addEventListener("click", () => {
   extractText.disabled = true;
   friendlyOutput.textContent = text.emptyOutput;
   jsonOutput.textContent = text.jsonPending;
-  copyButton.disabled = true;
   setToolButtons(false);
   studyTools.hidden = true;
   studyTools.innerHTML = "";
@@ -1314,7 +1314,6 @@ savedCourses.addEventListener("click", (event) => {
     subjectBadge.textContent = currentJson.subject;
     jsonOutput.textContent = JSON.stringify(currentJson, null, 2);
     renderModule(currentJson);
-    copyButton.disabled = false;
     setToolButtons(true);
   }
 

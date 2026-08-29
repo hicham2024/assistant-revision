@@ -7,7 +7,7 @@
     <title>Assistant de révision</title>
     <link rel="manifest" href="manifest.webmanifest" />
     <link rel="icon" href="assets/icon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css?v=10" />
+    <link rel="stylesheet" href="styles.css?v=11" />
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js" defer></script>
   </head>
   <body>
@@ -27,9 +27,6 @@
               <option value="es">Español - España</option>
               <option value="it">Italiano - Italia</option>
             </select>
-            <button id="copyJson" class="icon-button" type="button" title="Copier le JSON" disabled>
-              Copier
-            </button>
           </div>
         </header>
 
@@ -104,7 +101,8 @@
                 <span id="subjectBadge" class="badge muted">Matière</span>
               </div>
             </div>
-            <div class="toolstrip" aria-label="Outils de révision">
+            <div id="toolstrip" class="toolstrip" aria-label="Outils de révision" hidden>
+              <button id="copyJson" class="secondary" type="button" title="Copier le JSON" disabled>Copier</button>
               <button id="saveCourse" class="secondary" type="button" disabled>Sauvegarder</button>
               <button id="exportPdf" class="secondary" type="button" disabled>PDF</button>
               <button id="speakSummary" class="secondary" type="button" disabled>Audio</button>
@@ -128,6 +126,6 @@
       </section>
     </main>
 
-    <script src="app.js?v=10"></script>
+    <script src="app.js?v=11"></script>
   </body>
 </html>
