@@ -1,6 +1,6 @@
 # Assistant de révision
 
-Application éducative bilingue français-néerlandais qui permet à un élève de coller le texte d'un cours ou d'ajouter une photo scannée avec son téléphone. L'application analyse ensuite le contenu et propose un résumé, les points importants, des exercices et un devoir d'approfondissement dans la langue choisie.
+Application éducative multilingue qui permet à un élève de coller le texte d'un cours ou d'ajouter une photo scannée avec son téléphone. L'application analyse ensuite le contenu et propose un résumé, les points importants, des exercices et un devoir d'approfondissement dans la langue choisie.
 
 ## Ouvrir l'application
 
@@ -16,7 +16,27 @@ Le projet contient déjà une base PWA :
 
 ## Langues
 
-L'interface propose un choix entre français et néerlandais. Le résumé, les exercices, le devoir, les messages d'aide et le JSON généré suivent la langue sélectionnée.
+L'interface propose français Wallonie, néerlandais Flandre, arabe Maroc, espagnol Espagne et italien Italie. Le résumé, les exercices, le devoir, les messages d'aide et le JSON généré suivent la langue sélectionnée.
+
+Les niveaux scolaires changent selon le pays ou la région choisie :
+
+- Français : enseignement primaire, secondaire inférieur, secondaire supérieur, enseignement supérieur - Wallonie.
+- Néerlandais : lager onderwijs, secundair onderwijs eerste graad, secundair onderwijs tweede/derde graad, hoger onderwijs - Vlaanderen.
+- Arabe : التعليم الابتدائي، الثانوي الإعدادي، الثانوي التأهيلي، التعليم العالي - المغرب.
+- Espagnol : Educación Primaria, ESO, Bachillerato, Universidad / formación superior - España.
+- Italien : Scuola primaria, Scuola secondaria di primo grado, Scuola secondaria di secondo grado, Università / istruzione superiore - Italia.
+
+## Options de révision
+
+- Sélection de plusieurs photos scannées pour un même cours.
+- Choix de la langue du cours pour améliorer la lecture OCR.
+- Choix automatique ou manuel du niveau scolaire.
+- Choix du type de révision : module complet, résumé court, fiche mémo ou quiz rapide.
+- Export PDF via l'impression du navigateur.
+- Lecture audio du résumé.
+- Flashcards générées à partir des concepts clés.
+- Quiz interactif avec correction.
+- Sauvegarde locale des cours dans le navigateur.
 
 ## Publication sur les stores
 

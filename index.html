@@ -7,7 +7,7 @@
     <title>Assistant de révision</title>
     <link rel="manifest" href="manifest.webmanifest" />
     <link rel="icon" href="assets/icon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css?v=6" />
+    <link rel="stylesheet" href="styles.css?v=9" />
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js" defer></script>
   </head>
   <body>
@@ -21,8 +21,11 @@
           <div class="top-actions">
             <label id="languageLabel" class="language-label" for="languageSelect">Langue</label>
             <select id="languageSelect" aria-label="Langue de l'application">
-              <option value="fr">Français</option>
-              <option value="nl">Nederlands</option>
+              <option value="fr">Français - Wallonie</option>
+              <option value="nl">Nederlands - Vlaanderen</option>
+              <option value="ar">العربية - المغرب</option>
+              <option value="es">Español - España</option>
+              <option value="it">Italiano - Italia</option>
             </select>
             <button id="copyJson" class="icon-button" type="button" title="Copier le JSON" disabled>
               Copier
@@ -38,13 +41,47 @@
             </div>
 
             <div id="imageTools" class="image-tools" hidden>
-              <label id="scanImageLabel" for="scanImage">Image scannée avec le téléphone</label>
-              <input id="scanImage" type="file" accept="image/*" capture="environment" />
+              <label id="scanImageLabel" for="scanImage">Images scannées avec le téléphone</label>
+              <input id="scanImage" type="file" accept="image/*" capture="environment" multiple />
               <div id="imagePreview" class="image-preview">
                 <span id="emptyImageText">Aucune image sélectionnée</span>
               </div>
-              <button id="extractText" class="secondary" type="button" disabled>Lire le texte de l'image</button>
+              <button id="extractText" class="secondary" type="button" disabled>Lire le texte des images</button>
               <p id="ocrStatus" class="status" aria-live="polite"></p>
+            </div>
+
+            <div class="settings-grid" aria-label="Options de révision">
+              <label>
+                <span id="courseLanguageLabel">Langue du cours</span>
+                <select id="courseLanguage">
+                  <option value="auto">Auto</option>
+                  <option value="fra">Français</option>
+                  <option value="nld">Nederlands</option>
+                  <option value="ara">العربية</option>
+                  <option value="spa">Español</option>
+                  <option value="ita">Italiano</option>
+                  <option value="eng">English</option>
+                </select>
+              </label>
+              <label>
+                <span id="levelSelectLabel">Niveau</span>
+                <select id="levelSelect">
+                  <option value="auto">Auto</option>
+                  <option value="primary">Primaire</option>
+                  <option value="middle">Collège</option>
+                  <option value="high">Lycée</option>
+                  <option value="higher">Supérieur</option>
+                </select>
+              </label>
+              <label>
+                <span id="revisionTypeLabel">Type de révision</span>
+                <select id="revisionType">
+                  <option value="complete">Module complet</option>
+                  <option value="short">Résumé court</option>
+                  <option value="memo">Fiche mémo</option>
+                  <option value="quiz">Quiz rapide</option>
+                </select>
+              </label>
             </div>
 
             <label id="courseTextLabel" for="courseText">Texte du cours</label>
@@ -66,9 +103,21 @@
                 <span id="subjectBadge" class="badge muted">Matière</span>
               </div>
             </div>
+            <div class="toolstrip" aria-label="Outils de révision">
+              <button id="saveCourse" class="secondary" type="button" disabled>Sauvegarder</button>
+              <button id="exportPdf" class="secondary" type="button" disabled>PDF</button>
+              <button id="speakSummary" class="secondary" type="button" disabled>Audio</button>
+              <button id="showFlashcards" class="secondary" type="button" disabled>Flashcards</button>
+              <button id="startQuiz" class="secondary" type="button" disabled>Quiz</button>
+            </div>
             <div id="friendlyOutput" class="friendly-output" aria-live="polite">
               Colle un cours ou ajoute une photo, puis lance la génération.
             </div>
+            <section id="studyTools" class="study-tools" hidden></section>
+            <section class="saved-panel">
+              <h2 id="savedTitle">Cours sauvegardés</h2>
+              <div id="savedCourses" class="saved-list"></div>
+            </section>
             <details class="json-details">
               <summary id="jsonSummary">Voir le JSON</summary>
               <pre id="jsonOutput">Le JSON apparaîtra ici.</pre>
@@ -78,6 +127,6 @@
       </section>
     </main>
 
-    <script src="app.js?v=6"></script>
+    <script src="app.js?v=9"></script>
   </body>
 </html>

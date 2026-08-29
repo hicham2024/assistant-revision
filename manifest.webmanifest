@@ -1,7 +1,7 @@
 {
-  "name": "Assistant de révision / Studie-assistent",
+  "name": "Assistant de révision multilingue",
   "short_name": "Révision",
-  "description": "Application éducative bilingue français-néerlandais qui analyse un cours scanné ou collé, puis génère un résumé, des points importants, des exercices et un devoir.",
+  "description": "Application éducative multilingue qui analyse un cours scanné ou collé, puis génère un résumé, des points importants, des exercices et un devoir.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
