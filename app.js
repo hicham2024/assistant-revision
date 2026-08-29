@@ -34,6 +34,7 @@ const startQuiz = document.getElementById("startQuiz");
 const studyTools = document.getElementById("studyTools");
 const savedTitle = document.getElementById("savedTitle");
 const savedCourses = document.getElementById("savedCourses");
+const textStats = document.getElementById("textStats");
 
 let currentJson = null;
 let selectedImages = [];
@@ -348,6 +349,39 @@ const uiText = {
   }
 };
 
+const longCourseText = {
+  fr: {
+    stats: (words, pages) => `${words} mots environ · ${pages} page${pages > 1 ? "s" : ""} estimée${pages > 1 ? "s" : ""}`,
+    long: "Cours long détecté : le résumé sera organisé par sections pour rester lisible.",
+    sectionsTitle: "Plan du cours",
+    sectionLabel: (index) => `Section ${index}`
+  },
+  nl: {
+    stats: (words, pages) => `ongeveer ${words} woorden · ${pages} geschatte pagina${pages > 1 ? "'s" : ""}`,
+    long: "Lange les gedetecteerd: de samenvatting wordt per sectie georganiseerd.",
+    sectionsTitle: "Lesplan",
+    sectionLabel: (index) => `Sectie ${index}`
+  },
+  ar: {
+    stats: (words, pages) => `حوالي ${words} كلمة · ${pages} صفحة تقديرية`,
+    long: "تم اكتشاف درس طويل: سيتم تنظيم الملخص حسب الأقسام.",
+    sectionsTitle: "خطة الدرس",
+    sectionLabel: (index) => `القسم ${index}`
+  },
+  es: {
+    stats: (words, pages) => `${words} palabras aprox. · ${pages} página${pages > 1 ? "s" : ""} estimada${pages > 1 ? "s" : ""}`,
+    long: "Clase larga detectada: el resumen se organizará por secciones.",
+    sectionsTitle: "Plan de la clase",
+    sectionLabel: (index) => `Sección ${index}`
+  },
+  it: {
+    stats: (words, pages) => `circa ${words} parole · ${pages} pagin${pages > 1 ? "e" : "a"} stimat${pages > 1 ? "e" : "a"}`,
+    long: "Lezione lunga rilevata: il riassunto sarà organizzato per sezioni.",
+    sectionsTitle: "Schema della lezione",
+    sectionLabel: (index) => `Sezione ${index}`
+  }
+};
+
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
     navigator.serviceWorker.register("./sw.js").catch(() => {});
@@ -655,6 +689,54 @@ function splitSentences(text) {
     .filter((sentence) => sentence.length > 25);
 }
 
+function countWords(text) {
+  return (text.trim().match(/[\p{L}\p{N}]+/gu) || []).length;
+}
+
+function estimatePages(text) {
+  return Math.max(1, Math.ceil(countWords(text) / 350));
+}
+
+function updateTextStats() {
+  const text = courseText.value.trim();
+  if (!text) {
+    textStats.textContent = "";
+    textStats.classList.remove("strong");
+    return;
+  }
+
+  const words = countWords(text);
+  const pages = estimatePages(text);
+  const copy = longCourseText[currentLanguage];
+  textStats.textContent = words > 900
+    ? `${copy.stats(words, pages)} · ${copy.long}`
+    : copy.stats(words, pages);
+  textStats.classList.toggle("strong", words > 900);
+}
+
+function chunkSentences(sentences, size) {
+  const chunks = [];
+  for (let index = 0; index < sentences.length; index += size) {
+    chunks.push(sentences.slice(index, index + size));
+  }
+  return chunks;
+}
+
+function buildCourseSections(text) {
+  const sentences = splitSentences(text);
+  if (sentences.length < 8 && countWords(text) < 900) return [];
+
+  const copy = longCourseText[currentLanguage];
+  const targetSections = Math.min(8, Math.max(3, estimatePages(text)));
+  const chunkSize = Math.max(3, Math.ceil(sentences.length / targetSections));
+
+  return chunkSentences(sentences, chunkSize).slice(0, 8).map((chunk, index) => ({
+    title: copy.sectionLabel(index + 1),
+    summary: chunk.slice(0, 2).join(" "),
+    key_points: chunk.slice(0, 4).map((sentence) => sentence.replace(/[.!?]$/, "."))
+  }));
+}
+
 function extractTitle(text, subject) {
   const textForLanguage = contentText[currentLanguage];
   const firstLine = text
@@ -703,7 +785,11 @@ function buildSummary(text) {
   const textForLanguage = contentText[currentLanguage];
   const sentences = splitSentences(text);
   const maxSentences = revisionType.value === "short" ? 2 : 4;
-  const chosen = sentences.slice(0, maxSentences);
+  const isLong = countWords(text) > 900;
+  const step = isLong ? Math.max(1, Math.floor(sentences.length / maxSentences)) : 1;
+  const chosen = isLong
+    ? sentences.filter((_, index) => index % step === 0).slice(0, maxSentences)
+    : sentences.slice(0, maxSentences);
   if (chosen.length) return chosen.join(" ");
   return textForLanguage.fallbackSummary;
 }
@@ -711,7 +797,9 @@ function buildSummary(text) {
 function buildBullets(text) {
   const textForLanguage = contentText[currentLanguage];
   const maxBullets = revisionType.value === "memo" ? 8 : revisionType.value === "short" ? 3 : 6;
-  const sentences = splitSentences(text).slice(0, maxBullets);
+  const allSentences = splitSentences(text);
+  const step = countWords(text) > 900 ? Math.max(1, Math.floor(allSentences.length / maxBullets)) : 1;
+  const sentences = allSentences.filter((_, index) => index % step === 0).slice(0, maxBullets);
   if (sentences.length >= 3) {
     return sentences.map((sentence) => sentence.replace(/[.!?]$/, "."));
   }
@@ -751,10 +839,24 @@ function renderModule(module) {
   const assignments = module.advanced_assignment
     .map((item) => `<div class="exercise"><strong>${item.id}. ${escapeHtml(item.title)}</strong><p>${escapeHtml(item.instructions)}</p><p><strong>${text.sections.guide} :</strong> ${escapeHtml(item.solution_guide)}</p></div>`)
     .join("");
+  const sections = module.summary.course_sections?.length
+    ? `
+      <h3>${longCourseText[currentLanguage].sectionsTitle}</h3>
+      <div class="section-list">
+        ${module.summary.course_sections.map((section) => `
+          <article class="section-item">
+            <strong>${escapeHtml(section.title)}</strong>
+            <p>${escapeHtml(section.summary)}</p>
+          </article>
+        `).join("")}
+      </div>
+    `
+    : "";
 
   friendlyOutput.innerHTML = `
     <h2>${escapeHtml(module.summary.title)}</h2>
     <p>${escapeHtml(module.summary.main_takeaway)}</p>
+    ${sections}
     <h3>${text.sections.important}</h3>
     <ul>${bullets}</ul>
     <h3>${text.sections.concepts}</h3>
@@ -774,16 +876,25 @@ function makeModule(text) {
   const level = detectLevel(text);
   const title = extractTitle(text, subject);
   const concepts = buildConcepts(text, subject);
+  const words = countWords(text);
+  const pages = estimatePages(text);
+  const sections = buildCourseSections(text);
   const mainConcept = concepts[0]?.term || textForLanguage.fallbackConcepts[0];
 
   return {
     detected_level: level,
     subject,
+    source_stats: {
+      word_count: words,
+      estimated_pages: pages,
+      is_long_course: words > 900
+    },
     summary: {
       title,
       main_takeaway: buildSummary(text),
       key_concepts: concepts,
-      bullet_points: buildBullets(text)
+      bullet_points: buildBullets(text),
+      course_sections: sections
     },
     basic_exercises: [
       {
@@ -860,6 +971,7 @@ function applyLanguage(language) {
   savedTitle.textContent = text.savedTitle;
   jsonSummary.textContent = text.jsonSummary;
   updateOptionLabels();
+  updateTextStats();
   renderSavedCourses();
 
   if (!selectedImages.length) {
@@ -1053,6 +1165,7 @@ extractText.addEventListener("click", async () => {
       extractedTexts.push(result.data.text.trim());
     }
     courseText.value = extractedTexts.filter(Boolean).join("\n\n");
+    updateTextStats();
     ocrStatus.textContent = uiText[currentLanguage].ocrDone;
   } catch (error) {
     ocrStatus.textContent = uiText[currentLanguage].ocrFail;
@@ -1064,6 +1177,7 @@ extractText.addEventListener("click", async () => {
 applyLanguage(currentLanguage);
 imageTools.style.display = "none";
 renderSavedCourses();
+courseText.addEventListener("input", updateTextStats);
 
 function renderImagePreview() {
   const text = uiText[currentLanguage];

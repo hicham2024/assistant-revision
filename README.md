@@ -37,6 +37,7 @@ Les niveaux scolaires changent selon le pays ou la région choisie :
 - Flashcards générées à partir des concepts clés.
 - Quiz interactif avec correction.
 - Sauvegarde locale des cours dans le navigateur.
+- Gestion des cours longs : compteur de mots, estimation du nombre de pages, détection des cours de plusieurs pages et résumé structuré par sections.
 
 ## Publication sur les stores
 

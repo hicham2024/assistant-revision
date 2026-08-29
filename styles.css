@@ -232,6 +232,17 @@ input[type="file"] {
   font-size: 14px;
 }
 
+.text-stats {
+  min-height: 24px;
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.text-stats.strong {
+  color: #72411f;
+}
+
 textarea {
   width: 100%;
   flex: 1;
@@ -404,6 +415,23 @@ button.secondary:hover,
 
 .friendly-output li {
   margin: 7px 0;
+}
+
+.section-list {
+  display: grid;
+  gap: 10px;
+  margin: 12px 0 18px;
+}
+
+.section-item {
+  border-left: 3px solid var(--accent);
+  padding: 10px 12px;
+  background: #fbfcfa;
+}
+
+[dir="rtl"] .section-item {
+  border-right: 3px solid var(--accent);
+  border-left: 0;
 }
 
 .exercise {
