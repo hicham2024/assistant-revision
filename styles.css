@@ -315,6 +315,29 @@ input[type="file"] {
   font-weight: 700;
 }
 
+.generation-status {
+  margin: 10px 0 0;
+  border: 1px solid #bfdcd5;
+  border-radius: 8px;
+  padding: 10px 12px;
+  background: #eef9f6;
+  color: #174e45;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.generation-status[data-state="loading"] {
+  border-color: #bed8e7;
+  background: #f0f8fc;
+  color: #174e68;
+}
+
+.generation-status[data-state^="local-"] {
+  border-color: #e7c77d;
+  background: #fff8e7;
+  color: #6e4700;
+}
+
 textarea {
   width: 100%;
   flex: 1;
@@ -422,6 +445,16 @@ button.secondary:hover,
   color: #7a4a00;
 }
 
+.source-badge.ai {
+  background: #e7f5ff;
+  color: #0d5274;
+}
+
+.source-badge.local {
+  background: #fff0cc;
+  color: #704600;
+}
+
 .friendly-output {
   flex: 1;
   overflow: auto;
@@ -437,9 +470,16 @@ button.secondary:hover,
 }
 
 .study-tools {
+  scroll-margin-top: 18px;
   border-top: 1px solid var(--line);
   padding: 16px 18px;
   background: #fbfdff;
+}
+
+.study-tools h3:focus {
+  border-radius: 4px;
+  outline: 3px solid rgba(15, 143, 131, 0.35);
+  outline-offset: 4px;
 }
 
 .flashcard-list,

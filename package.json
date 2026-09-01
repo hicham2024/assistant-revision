@@ -5,6 +5,8 @@
   "description": "Application éducative mobile et desktop pour générer des modules de révision à partir de texte ou d'image scannée.",
   "scripts": {
     "start": "npx serve .",
+    "build": "node scripts/build.mjs",
+    "test": "node --test tests/*.test.mjs",
     "android:init": "npm install && npm install @capacitor/core @capacitor/cli @capacitor/android && npx cap init \"Assistant de révision\" \"com.assistantrevision.app\" --web-dir . && npx cap add android",
     "ios:init": "npm install && npm install @capacitor/core @capacitor/cli @capacitor/ios && npx cap init \"Assistant de révision\" \"com.assistantrevision.app\" --web-dir . && npx cap add ios",
     "sync": "npx cap sync"

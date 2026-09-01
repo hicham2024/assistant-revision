@@ -1,6 +1,9 @@
 [build]
-  publish = "."
-  command = ""
+  publish = "dist"
+  command = "npm run build"
+
+[functions]
+  directory = "netlify/functions"
 
 [[headers]]
   for = "/*"
@@ -12,4 +15,9 @@
 [[headers]]
   for = "/sw.js"
   [headers.values]
-    Cache-Control = "no-cache"
+    Cache-Control = "no-store, max-age=0"
+
+[[headers]]
+  for = "/index.html"
+  [headers.values]
+    Cache-Control = "no-cache, max-age=0, must-revalidate"
