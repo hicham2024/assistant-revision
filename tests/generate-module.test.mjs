@@ -51,6 +51,7 @@ test("short summaries never contain exercises, assignments or sections", () => {
   assert.equal(module.basic_exercises.length, 0);
   assert.equal(module.advanced_assignment.length, 0);
   assert.equal(module.summary.course_sections.length, 0);
+  assert.equal(module.summary.key_concepts.length, 0);
   assert.ok(module.summary.bullet_points.length <= REVISION_PROFILES.short.bullets);
 });
 
@@ -68,6 +69,7 @@ test("quick quizzes retain questions and remove assignments", () => {
   assert.equal(module.revision_type, "quiz");
   assert.equal(module.advanced_assignment.length, 0);
   assert.equal(module.summary.bullet_points.length, 0);
+  assert.equal(module.summary.key_concepts.length, 0);
   assert.ok(module.basic_exercises.length > 0);
   assert.ok(module.basic_exercises.length <= REVISION_PROFILES.quiz.exercises);
 });
@@ -79,4 +81,3 @@ test("complete modules are bounded and source statistics are trusted locally", (
   assert.notEqual(module.source_stats.word_count, 999);
   assert.equal(module.source_stats.estimated_pages, 1);
 });
-
