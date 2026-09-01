@@ -1,8 +1,8 @@
 export const REVISION_PROFILES = Object.freeze({
   complete: { maxOutputTokens: 2800, concepts: 8, bullets: 6, exercises: 6, assignments: 2, sections: 8 },
-  short: { maxOutputTokens: 900, concepts: 3, bullets: 3, exercises: 0, assignments: 0, sections: 0 },
+  short: { maxOutputTokens: 900, concepts: 0, bullets: 3, exercises: 0, assignments: 0, sections: 0 },
   memo: { maxOutputTokens: 1200, concepts: 6, bullets: 8, exercises: 0, assignments: 0, sections: 0 },
-  quiz: { maxOutputTokens: 1500, concepts: 3, bullets: 0, exercises: 5, assignments: 0, sections: 0 }
+  quiz: { maxOutputTokens: 1500, concepts: 0, bullets: 0, exercises: 5, assignments: 0, sections: 0 }
 });
 
 const MODULE_SCHEMA = {
