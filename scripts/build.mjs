@@ -6,6 +6,7 @@ const output = join(root, "dist");
 const publicEntries = [
   "index.html",
   "app.js",
+  "pdf-reader.mjs",
   "styles.css",
   "sw.js",
   "manifest.webmanifest",
@@ -22,4 +23,3 @@ await Promise.all(
 );
 
 console.log(`Prepared ${publicEntries.length} public entries in dist.`);
-
