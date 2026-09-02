@@ -1,4 +1,7 @@
 audit-product-design/
+product-design-audit/
+github-upload-*/
+github-upload-*.zip
 node_modules/
 .netlify/
 .repo/
