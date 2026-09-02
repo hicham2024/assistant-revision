@@ -1,6 +1,6 @@
 # Assistant de révision
 
-Application éducative multilingue qui permet à un élève de coller le texte d'un cours ou d'ajouter une photo scannée avec son téléphone. L'application analyse ensuite le contenu et propose un résumé, les points importants, des exercices et un devoir d'approfondissement dans la langue choisie.
+Application éducative multilingue qui permet à un élève de coller le texte d'un cours, d'ajouter des photos scannées avec son téléphone ou d'importer un PDF. L'application analyse ensuite le contenu et propose un résumé, les points importants, des exercices et un devoir d'approfondissement dans la langue choisie.
 
 ## Ouvrir l'application
 
@@ -30,6 +30,8 @@ Les niveaux scolaires changent selon le pays ou la région choisie :
 ## Options de révision
 
 - Sélection de plusieurs photos scannées pour un même cours.
+- Import d'un PDF de cours et extraction locale du texte, page par page (25 Mo et 120 pages maximum).
+- Message explicite pour les PDF scannés sans texte sélectionnable, avec redirection vers le mode Photos.
 - Choix de la langue du cours pour améliorer la lecture OCR.
 - Choix automatique ou manuel du niveau scolaire.
 - Choix du type de révision : module complet, résumé court, fiche mémo ou quiz rapide.
@@ -41,6 +43,8 @@ Les niveaux scolaires changent selon le pays ou la région choisie :
 - Sauvegarde locale des cours dans le navigateur.
 - Gestion des cours longs : compteur de mots, estimation du nombre de pages, détection des cours de plusieurs pages et résumé structuré par sections.
 
+Le fichier PDF n'est pas envoyé tel quel. Il reste sur l'appareil ; seul le texte extrait est transmis à la fonction IA lorsque l'utilisateur lance explicitement la génération. Le lecteur PDF nécessite une connexion internet lors de son premier chargement.
+
 ## Connexion IA
 
 La clé API ne doit jamais être placée dans `app.js` ou dans GitHub. Elle doit être enregistrée dans Netlify :
@@ -51,10 +55,10 @@ La clé API ne doit jamais être placée dans `app.js` ou dans GitHub. Elle doit
 
 L'application appelle ensuite la fonction `netlify/functions/generate-module.mjs`. Si l'API IA n'est pas disponible, l'application garde l'analyse locale comme solution de secours.
 
-Par défaut, la fonction utilise `gpt-5.6-luna`, un modèle rapide adapté aux usages fréquents. Pour changer de modèle sans modifier le code, ajouter aussi une variable Netlify optionnelle :
+Par défaut, la fonction utilise `gpt-4.1-mini`, un modèle rapide et largement compatible pour les usages fréquents. Pour changer de modèle sans modifier le code, ajouter aussi une variable Netlify optionnelle :
 
 - Nom de la variable : `OPENAI_MODEL`
-- Exemple de valeur : `gpt-5.6-luna`
+- Exemple de valeur : `gpt-4.1-mini`
 
 ## Publication sur les stores
 

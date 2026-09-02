@@ -8,11 +8,19 @@ const levelBadge = document.getElementById("levelBadge");
 const subjectBadge = document.getElementById("subjectBadge");
 const textMode = document.getElementById("textMode");
 const imageMode = document.getElementById("imageMode");
+const pdfMode = document.getElementById("pdfMode");
 const imageTools = document.getElementById("imageTools");
+const pdfTools = document.getElementById("pdfTools");
 const scanImage = document.getElementById("scanImage");
 const imagePreview = document.getElementById("imagePreview");
 const extractText = document.getElementById("extractText");
 const ocrStatus = document.getElementById("ocrStatus");
+const coursePdf = document.getElementById("coursePdf");
+const coursePdfLabel = document.getElementById("coursePdfLabel");
+const pdfPreview = document.getElementById("pdfPreview");
+const pdfPrivacy = document.getElementById("pdfPrivacy");
+const extractPdfText = document.getElementById("extractPdfText");
+const pdfStatus = document.getElementById("pdfStatus");
 const languageSelect = document.getElementById("languageSelect");
 const appEyebrow = document.getElementById("appEyebrow");
 const appTitle = document.getElementById("appTitle");
@@ -42,11 +50,14 @@ const sourceBadge = document.getElementById("sourceBadge");
 
 let currentJson = null;
 let selectedImages = [];
+let selectedPdf = null;
+let pdfReaderPromise;
 let currentLanguage = "fr";
 let currentGenerationState = "idle";
 const storageKey = "assistantRevisionCourses";
 const AI_TIMEOUT_MS = 15000;
-const PWA_VERSION = "v16";
+const PWA_VERSION = "v17";
+const MAX_PDF_SIZE_BYTES = 25 * 1024 * 1024;
 
 const uiText = {
   fr: {
@@ -60,11 +71,16 @@ const uiText = {
     copied: "Copié",
     textMode: "Coller le texte",
     imageMode: "Photos du cours",
+    pdfMode: "PDF du cours",
     scanImageLabel: "Images scannées avec le téléphone",
     noImage: "Aucune image sélectionnée",
     extractText: "Lire le texte des images",
+    coursePdfLabel: "Cours au format PDF",
+    noPdf: "Aucun PDF sélectionné",
+    extractPdfText: "Extraire le texte du PDF",
+    pdfPrivacy: "Le PDF reste sur cet appareil. Seul le texte extrait sera utilisé lors de la génération.",
     courseTextLabel: "Texte du cours",
-    placeholder: "Colle ici le texte du cours, ou utilise une photo pour remplir ce champ automatiquement...",
+    placeholder: "Colle ici le texte du cours, utilise une photo ou importe un PDF...",
     generate: "Générer le module",
     clear: "Effacer",
     courseLanguageLabel: "Langue du cours",
@@ -82,7 +98,7 @@ const uiText = {
     remove: "Supprimer",
     levelPending: "Niveau à détecter",
     subjectPending: "Matière",
-    emptyOutput: "Colle un cours ou ajoute une photo, puis lance la génération.",
+    emptyOutput: "Colle un cours, ajoute une photo ou importe un PDF, puis lance la génération.",
     aiGenerating: "Analyse intelligente du cours en cours...",
     aiSuccess: "Résultat généré par l'IA.",
     aiFallback: "L'IA n'est pas disponible pour le moment. Module généré avec l'analyse locale.",
@@ -114,6 +130,17 @@ const uiText = {
     ocrProgress: "Lecture du texte",
     ocrDone: "Textes lus. Tu peux vérifier rapidement puis générer le module.",
     ocrFail: "Impossible de lire ces images. Essaie des photos plus nettes ou colle le texte.",
+    pdfSelected: (name, size) => `${name} · ${size}`,
+    pdfLoading: "Chargement du lecteur PDF...",
+    pdfProgress: (page, total) => `Lecture du PDF : page ${page}/${total}`,
+    pdfDone: (pages) => `Texte extrait de ${pages} page${pages > 1 ? "s" : ""}. Vérifie-le puis génère le module.`,
+    pdfInvalid: "Sélectionne un fichier PDF valide.",
+    pdfTooLarge: "Ce PDF dépasse 25 Mo. Choisis un fichier plus léger.",
+    pdfTooLong: "Ce PDF dépasse 120 pages. Sépare-le en plusieurs fichiers.",
+    pdfScanned: "Ce PDF semble scanné sans texte sélectionnable. Utilise le mode Photos du cours ou un PDF avec reconnaissance de texte.",
+    pdfPassword: "Ce PDF est protégé par un mot de passe. Enregistre une copie non protégée puis réessaie.",
+    pdfNeedsNet: "La lecture PDF nécessite une connexion internet au premier chargement.",
+    pdfFail: "Impossible de lire ce PDF. Essaie un autre fichier ou colle le texte.",
     selectedImages: (count) => `${count} image${count > 1 ? "s" : ""} sélectionnée${count > 1 ? "s" : ""}`,
     pageLabel: (index) => `Page ${index}`
   },
@@ -128,11 +155,16 @@ const uiText = {
     copied: "Gekopieerd",
     textMode: "Tekst plakken",
     imageMode: "Foto's van de les",
+    pdfMode: "PDF van de les",
     scanImageLabel: "Gescande afbeeldingen met de telefoon",
     noImage: "Geen afbeelding geselecteerd",
     extractText: "Tekst uit de afbeeldingen lezen",
+    coursePdfLabel: "Les als PDF",
+    noPdf: "Geen PDF geselecteerd",
+    extractPdfText: "Tekst uit PDF halen",
+    pdfPrivacy: "De PDF blijft op dit apparaat. Alleen de uitgelezen tekst wordt gebruikt wanneer je de module maakt.",
     courseTextLabel: "Lestekst",
-    placeholder: "Plak hier de tekst van de les, of gebruik een foto om dit veld automatisch te vullen...",
+    placeholder: "Plak hier de lestekst, gebruik foto's of importeer een PDF...",
     generate: "Module maken",
     clear: "Wissen",
     courseLanguageLabel: "Taal van de les",
@@ -150,7 +182,7 @@ const uiText = {
     remove: "Verwijderen",
     levelPending: "Niveau detecteren",
     subjectPending: "Vak",
-    emptyOutput: "Plak een les of voeg een foto toe en start daarna de generatie.",
+    emptyOutput: "Plak een les, voeg foto's toe of importeer een PDF en start daarna de generatie.",
     aiGenerating: "Slimme analyse van de les wordt uitgevoerd...",
     aiSuccess: "Resultaat gegenereerd door AI.",
     aiFallback: "De AI is momenteel niet beschikbaar. De module is gemaakt met de lokale analyse.",
@@ -182,6 +214,17 @@ const uiText = {
     ocrProgress: "Tekst lezen",
     ocrDone: "Teksten gelezen. Je kunt ze kort controleren en daarna de module maken.",
     ocrFail: "Deze afbeeldingen konden niet gelezen worden. Probeer scherpere foto's of plak de tekst.",
+    pdfSelected: (name, size) => `${name} · ${size}`,
+    pdfLoading: "PDF-lezer laden...",
+    pdfProgress: (page, total) => `PDF lezen: pagina ${page}/${total}`,
+    pdfDone: (pages) => `Tekst uit ${pages} pagina${pages > 1 ? "'s" : ""} gehaald. Controleer hem en maak daarna de module.`,
+    pdfInvalid: "Selecteer een geldig PDF-bestand.",
+    pdfTooLarge: "Deze PDF is groter dan 25 MB. Kies een kleiner bestand.",
+    pdfTooLong: "Deze PDF bevat meer dan 120 pagina's. Splits hem in meerdere bestanden.",
+    pdfScanned: "Deze PDF lijkt een scan zonder selecteerbare tekst. Gebruik Lesfoto's of een PDF met tekstherkenning.",
+    pdfPassword: "Deze PDF is beveiligd met een wachtwoord. Bewaar een onbeveiligde kopie en probeer opnieuw.",
+    pdfNeedsNet: "De PDF-lezer heeft bij de eerste keer een internetverbinding nodig.",
+    pdfFail: "Deze PDF kon niet worden gelezen. Probeer een ander bestand of plak de tekst.",
     selectedImages: (count) => `${count} afbeelding${count > 1 ? "en" : ""} geselecteerd`,
     pageLabel: (index) => `Pagina ${index}`
   },
@@ -196,11 +239,16 @@ const uiText = {
     copied: "تم النسخ",
     textMode: "لصق النص",
     imageMode: "صور الدرس",
+    pdfMode: "ملف PDF للدرس",
     scanImageLabel: "صور ممسوحة بالهاتف",
     noImage: "لم يتم اختيار أي صورة",
     extractText: "قراءة النص من الصور",
+    coursePdfLabel: "الدرس بصيغة PDF",
+    noPdf: "لم يتم اختيار ملف PDF",
+    extractPdfText: "استخراج النص من PDF",
+    pdfPrivacy: "يبقى ملف PDF على هذا الجهاز. يُستخدم النص المستخرج فقط عند إنشاء الوحدة.",
     courseTextLabel: "نص الدرس",
-    placeholder: "ألصق نص الدرس هنا، أو استعمل الصور لملء هذا الحقل تلقائيا...",
+    placeholder: "ألصق نص الدرس هنا، أو استعمل الصور، أو استورد ملف PDF...",
     generate: "إنشاء وحدة المراجعة",
     clear: "مسح",
     courseLanguageLabel: "لغة الدرس",
@@ -218,7 +266,7 @@ const uiText = {
     remove: "حذف",
     levelPending: "تحديد المستوى",
     subjectPending: "المادة",
-    emptyOutput: "ألصق درسا أو أضف صورا، ثم ابدأ إنشاء وحدة المراجعة.",
+    emptyOutput: "ألصق درسا أو أضف صورا أو استورد PDF، ثم ابدأ إنشاء وحدة المراجعة.",
     aiGenerating: "يتم تحليل الدرس بالذكاء الاصطناعي...",
     aiSuccess: "تم إنشاء النتيجة بالذكاء الاصطناعي.",
     aiFallback: "الذكاء الاصطناعي غير متاح حاليا. تم إنشاء الوحدة بالتحليل المحلي.",
@@ -250,6 +298,17 @@ const uiText = {
     ocrProgress: "قراءة النص",
     ocrDone: "تمت قراءة النصوص. يمكنك مراجعتها بسرعة ثم إنشاء الوحدة.",
     ocrFail: "تعذرت قراءة هذه الصور. جرب صورا أوضح أو ألصق النص.",
+    pdfSelected: (name, size) => `${name} · ${size}`,
+    pdfLoading: "جار تحميل قارئ PDF...",
+    pdfProgress: (page, total) => `قراءة PDF: الصفحة ${page}/${total}`,
+    pdfDone: (pages) => `تم استخراج النص من ${pages} صفحة. راجعه ثم أنشئ الوحدة.`,
+    pdfInvalid: "اختر ملف PDF صالحا.",
+    pdfTooLarge: "يتجاوز ملف PDF حجم 25 ميغابايت. اختر ملفا أصغر.",
+    pdfTooLong: "يتجاوز ملف PDF عدد 120 صفحة. قسّمه إلى عدة ملفات.",
+    pdfScanned: "يبدو أن ملف PDF ممسوح ضوئيا ولا يحتوي على نص قابل للتحديد. استخدم وضع صور الدرس أو ملف PDF مع التعرف على النص.",
+    pdfPassword: "ملف PDF محمي بكلمة مرور. احفظ نسخة غير محمية ثم أعد المحاولة.",
+    pdfNeedsNet: "يحتاج قارئ PDF إلى اتصال بالإنترنت عند التحميل لأول مرة.",
+    pdfFail: "تعذرت قراءة ملف PDF. جرب ملفا آخر أو ألصق النص.",
     selectedImages: (count) => `${count} صورة مختارة`,
     pageLabel: (index) => `الصفحة ${index}`
   },
@@ -264,11 +323,16 @@ const uiText = {
     copied: "Copiado",
     textMode: "Pegar texto",
     imageMode: "Fotos de la clase",
+    pdfMode: "PDF de la clase",
     scanImageLabel: "Imágenes escaneadas con el teléfono",
     noImage: "No se ha seleccionado ninguna imagen",
     extractText: "Leer el texto de las imágenes",
+    coursePdfLabel: "Clase en formato PDF",
+    noPdf: "Ningún PDF seleccionado",
+    extractPdfText: "Extraer el texto del PDF",
+    pdfPrivacy: "El PDF permanece en este dispositivo. Solo se usará el texto extraído al crear el módulo.",
     courseTextLabel: "Texto de la clase",
-    placeholder: "Pega aquí el texto de la clase, o usa fotos para completar este campo automáticamente...",
+    placeholder: "Pega aquí el texto de la clase, usa fotos o importa un PDF...",
     generate: "Crear módulo",
     clear: "Borrar",
     courseLanguageLabel: "Idioma de la clase",
@@ -286,7 +350,7 @@ const uiText = {
     remove: "Eliminar",
     levelPending: "Nivel por detectar",
     subjectPending: "Asignatura",
-    emptyOutput: "Pega una clase o añade fotos y luego crea el módulo.",
+    emptyOutput: "Pega una clase, añade fotos o importa un PDF y luego crea el módulo.",
     aiGenerating: "Análisis inteligente de la clase en curso...",
     aiSuccess: "Resultado generado por IA.",
     aiFallback: "La IA no está disponible por el momento. El módulo se generó con el análisis local.",
@@ -318,6 +382,17 @@ const uiText = {
     ocrProgress: "Lectura del texto",
     ocrDone: "Textos leídos. Puedes revisarlos y crear el módulo.",
     ocrFail: "No se pudieron leer estas imágenes. Prueba con fotos más nítidas o pega el texto.",
+    pdfSelected: (name, size) => `${name} · ${size}`,
+    pdfLoading: "Cargando el lector de PDF...",
+    pdfProgress: (page, total) => `Leyendo PDF: página ${page}/${total}`,
+    pdfDone: (pages) => `Texto extraído de ${pages} página${pages > 1 ? "s" : ""}. Revísalo y crea el módulo.`,
+    pdfInvalid: "Selecciona un archivo PDF válido.",
+    pdfTooLarge: "Este PDF supera los 25 MB. Elige un archivo más ligero.",
+    pdfTooLong: "Este PDF supera las 120 páginas. Divídelo en varios archivos.",
+    pdfScanned: "Este PDF parece escaneado y no contiene texto seleccionable. Usa Fotos de la clase o un PDF con reconocimiento de texto.",
+    pdfPassword: "Este PDF está protegido con contraseña. Guarda una copia sin protección e inténtalo de nuevo.",
+    pdfNeedsNet: "El lector de PDF necesita conexión a internet la primera vez que se carga.",
+    pdfFail: "No se pudo leer este PDF. Prueba con otro archivo o pega el texto.",
     selectedImages: (count) => `${count} imagen${count > 1 ? "es" : ""} seleccionada${count > 1 ? "s" : ""}`,
     pageLabel: (index) => `Página ${index}`
   },
@@ -332,11 +407,16 @@ const uiText = {
     copied: "Copiato",
     textMode: "Incolla testo",
     imageMode: "Foto della lezione",
+    pdfMode: "PDF della lezione",
     scanImageLabel: "Immagini scansionate con il telefono",
     noImage: "Nessuna immagine selezionata",
     extractText: "Leggi il testo dalle immagini",
+    coursePdfLabel: "Lezione in formato PDF",
+    noPdf: "Nessun PDF selezionato",
+    extractPdfText: "Estrai il testo dal PDF",
+    pdfPrivacy: "Il PDF resta su questo dispositivo. Solo il testo estratto verrà usato quando crei il modulo.",
     courseTextLabel: "Testo della lezione",
-    placeholder: "Incolla qui il testo della lezione, oppure usa le foto per compilare automaticamente questo campo...",
+    placeholder: "Incolla qui il testo della lezione, usa le foto o importa un PDF...",
     generate: "Crea modulo",
     clear: "Cancella",
     courseLanguageLabel: "Lingua della lezione",
@@ -354,7 +434,7 @@ const uiText = {
     remove: "Elimina",
     levelPending: "Livello da rilevare",
     subjectPending: "Materia",
-    emptyOutput: "Incolla una lezione o aggiungi foto, poi crea il modulo.",
+    emptyOutput: "Incolla una lezione, aggiungi foto o importa un PDF, poi crea il modulo.",
     aiGenerating: "Analisi intelligente della lezione in corso...",
     aiSuccess: "Risultato generato dall'IA.",
     aiFallback: "L'IA non è disponibile al momento. Il modulo è stato generato con l'analisi locale.",
@@ -386,6 +466,17 @@ const uiText = {
     ocrProgress: "Lettura del testo",
     ocrDone: "Testi letti. Puoi controllarli e poi creare il modulo.",
     ocrFail: "Impossibile leggere queste immagini. Prova foto più nitide o incolla il testo.",
+    pdfSelected: (name, size) => `${name} · ${size}`,
+    pdfLoading: "Caricamento del lettore PDF...",
+    pdfProgress: (page, total) => `Lettura PDF: pagina ${page}/${total}`,
+    pdfDone: (pages) => `Testo estratto da ${pages} pagin${pages > 1 ? "e" : "a"}. Controllalo e crea il modulo.`,
+    pdfInvalid: "Seleziona un file PDF valido.",
+    pdfTooLarge: "Questo PDF supera 25 MB. Scegli un file più leggero.",
+    pdfTooLong: "Questo PDF supera 120 pagine. Dividilo in più file.",
+    pdfScanned: "Questo PDF sembra una scansione senza testo selezionabile. Usa Foto della lezione o un PDF con riconoscimento del testo.",
+    pdfPassword: "Questo PDF è protetto da password. Salva una copia non protetta e riprova.",
+    pdfNeedsNet: "Il lettore PDF richiede una connessione internet al primo caricamento.",
+    pdfFail: "Impossibile leggere questo PDF. Prova un altro file o incolla il testo.",
     selectedImages: (count) => `${count} immagin${count > 1 ? "i" : "e"} selezionat${count > 1 ? "e" : "a"}`,
     pageLabel: (index) => `Pagina ${index}`
   },
@@ -400,11 +491,16 @@ const uiText = {
     copied: "Copied",
     textMode: "Paste text",
     imageMode: "Course photos",
+    pdfMode: "Course PDF",
     scanImageLabel: "Scanned images from the phone",
     noImage: "No image selected",
     extractText: "Read text from images",
+    coursePdfLabel: "Course in PDF format",
+    noPdf: "No PDF selected",
+    extractPdfText: "Extract text from PDF",
+    pdfPrivacy: "The PDF stays on this device. Only the extracted text is used when you generate the module.",
     courseTextLabel: "Course text",
-    placeholder: "Paste the course text here, or use photos to fill this field automatically...",
+    placeholder: "Paste the course text here, use photos or import a PDF...",
     generate: "Generate module",
     clear: "Clear",
     courseLanguageLabel: "Course language",
@@ -422,7 +518,7 @@ const uiText = {
     remove: "Delete",
     levelPending: "Level to detect",
     subjectPending: "Subject",
-    emptyOutput: "Paste a course or add photos, then generate the module.",
+    emptyOutput: "Paste a course, add photos or import a PDF, then generate the module.",
     aiGenerating: "Smart course analysis in progress...",
     aiSuccess: "Result generated by AI.",
     aiFallback: "AI is not available right now. The module was generated with local analysis.",
@@ -454,6 +550,17 @@ const uiText = {
     ocrProgress: "Reading text",
     ocrDone: "Texts read. You can check them quickly and then generate the module.",
     ocrFail: "These images could not be read. Try clearer photos or paste the text.",
+    pdfSelected: (name, size) => `${name} · ${size}`,
+    pdfLoading: "Loading the PDF reader...",
+    pdfProgress: (page, total) => `Reading PDF: page ${page}/${total}`,
+    pdfDone: (pages) => `Text extracted from ${pages} page${pages > 1 ? "s" : ""}. Check it, then generate the module.`,
+    pdfInvalid: "Select a valid PDF file.",
+    pdfTooLarge: "This PDF is larger than 25 MB. Choose a smaller file.",
+    pdfTooLong: "This PDF has more than 120 pages. Split it into multiple files.",
+    pdfScanned: "This PDF appears to be a scan without selectable text. Use Course photos or a PDF with text recognition.",
+    pdfPassword: "This PDF is password-protected. Save an unprotected copy and try again.",
+    pdfNeedsNet: "The PDF reader needs an internet connection the first time it loads.",
+    pdfFail: "This PDF could not be read. Try another file or paste the text.",
     selectedImages: (count) => `${count} image${count > 1 ? "s" : ""} selected`,
     pageLabel: (index) => `Page ${index}`
   }
@@ -1203,6 +1310,91 @@ function makeModule(text) {
   };
 }
 
+function formatFileSize(bytes) {
+  if (!Number.isFinite(bytes) || bytes <= 0) return "0 Ko";
+  const units = ["o", "Ko", "Mo", "Go"];
+  const unitIndex = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), units.length - 1);
+  const value = bytes / (1024 ** unitIndex);
+  return `${value >= 10 || unitIndex === 0 ? Math.round(value) : value.toFixed(1)} ${units[unitIndex]}`;
+}
+
+function renderPdfPreview() {
+  const text = uiText[currentLanguage];
+  pdfPreview.replaceChildren();
+
+  if (!selectedPdf) {
+    pdfPreview.classList.add("empty");
+    const empty = document.createElement("span");
+    empty.textContent = text.noPdf;
+    pdfPreview.append(empty);
+    return;
+  }
+
+  pdfPreview.classList.remove("empty");
+  const file = document.createElement("div");
+  file.className = "pdf-file";
+
+  const icon = document.createElement("span");
+  icon.className = "pdf-file-icon";
+  icon.setAttribute("aria-hidden", "true");
+  icon.textContent = "PDF";
+
+  const details = document.createElement("span");
+  details.className = "pdf-file-details";
+  const name = document.createElement("span");
+  name.className = "pdf-file-name";
+  name.textContent = selectedPdf.name;
+  name.title = selectedPdf.name;
+  const size = document.createElement("span");
+  size.className = "pdf-file-size";
+  size.textContent = formatFileSize(selectedPdf.size);
+  details.append(name, size);
+  file.append(icon, details);
+  pdfPreview.append(file);
+}
+
+function setInputMode(mode) {
+  const modes = [
+    { name: "text", button: textMode, panel: null },
+    { name: "image", button: imageMode, panel: imageTools },
+    { name: "pdf", button: pdfMode, panel: pdfTools }
+  ];
+
+  modes.forEach((item) => {
+    const active = item.name === mode;
+    item.button.classList.toggle("active", active);
+    item.button.setAttribute("aria-selected", String(active));
+    if (item.panel) {
+      item.panel.hidden = !active;
+      item.panel.style.display = active ? "" : "none";
+    }
+  });
+}
+
+function loadPdfReader() {
+  if (!pdfReaderPromise) {
+    pdfReaderPromise = import(`./pdf-reader.mjs?${PWA_VERSION}`).catch((error) => {
+      pdfReaderPromise = undefined;
+      throw error;
+    });
+  }
+  return pdfReaderPromise;
+}
+
+function pdfErrorMessage(error) {
+  const text = uiText[currentLanguage];
+  const messages = {
+    PDF_INVALID_FILE: text.pdfInvalid,
+    PDF_TOO_LARGE: text.pdfTooLarge,
+    PDF_TOO_LONG: text.pdfTooLong,
+    PDF_SCANNED: text.pdfScanned,
+    PDF_PASSWORD: text.pdfPassword,
+    PDF_LIBRARY_FAILED: navigator.onLine ? text.pdfFail : text.pdfNeedsNet,
+    PDF_LOAD_FAILED: text.pdfFail
+  };
+  return messages[error?.code] || text.pdfFail;
+}
+
 function applyLanguage(language) {
   currentLanguage = language;
   const text = uiText[currentLanguage];
@@ -1217,8 +1409,12 @@ function applyLanguage(language) {
   copyButton.title = text.copy;
   textMode.textContent = text.textMode;
   imageMode.textContent = text.imageMode;
+  pdfMode.textContent = text.pdfMode;
   scanImageLabel.textContent = text.scanImageLabel;
   extractText.textContent = text.extractText;
+  coursePdfLabel.textContent = text.coursePdfLabel;
+  extractPdfText.textContent = text.extractPdfText;
+  pdfPrivacy.textContent = text.pdfPrivacy;
   courseTextLabel.textContent = text.courseTextLabel;
   courseText.placeholder = text.placeholder;
   generateButton.textContent = text.generate;
@@ -1244,6 +1440,7 @@ function applyLanguage(language) {
   } else {
     renderImagePreview();
   }
+  renderPdfPreview();
 
   if (!currentJson) {
     levelBadge.textContent = text.levelPending;
@@ -1406,15 +1603,21 @@ clearButton.addEventListener("click", () => {
   const text = uiText[currentLanguage];
   courseText.value = "";
   scanImage.value = "";
+  coursePdf.value = "";
   selectedImages = [];
+  selectedPdf = null;
   currentJson = null;
   levelBadge.textContent = text.levelPending;
   subjectBadge.textContent = text.subjectPending;
   imagePreview.classList.add("empty");
   imagePreview.innerHTML = `<span>${text.noImage}</span>`;
   ocrStatus.textContent = "";
+  pdfStatus.textContent = "";
   setGenerationStatus("idle");
   extractText.disabled = true;
+  extractPdfText.disabled = true;
+  renderPdfPreview();
+  updateTextStats();
   friendlyOutput.textContent = text.emptyOutput;
   jsonOutput.textContent = text.jsonPending;
   setToolButtons(false);
@@ -1437,22 +1640,78 @@ languageSelect.addEventListener("change", () => {
   applyLanguage(languageSelect.value);
 });
 
-textMode.addEventListener("click", () => {
-  textMode.classList.add("active");
-  imageMode.classList.remove("active");
-  textMode.setAttribute("aria-selected", "true");
-  imageMode.setAttribute("aria-selected", "false");
-  imageTools.hidden = true;
-  imageTools.style.display = "none";
+textMode.addEventListener("click", () => setInputMode("text"));
+imageMode.addEventListener("click", () => setInputMode("image"));
+pdfMode.addEventListener("click", () => setInputMode("pdf"));
+
+coursePdf.addEventListener("change", () => {
+  const text = uiText[currentLanguage];
+  const file = coursePdf.files?.[0] || null;
+  selectedPdf = null;
+  extractPdfText.disabled = true;
+  pdfStatus.textContent = "";
+
+  if (!file) {
+    renderPdfPreview();
+    return;
+  }
+
+  const isPdf = file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf");
+  if (!isPdf) {
+    coursePdf.value = "";
+    pdfStatus.textContent = text.pdfInvalid;
+    renderPdfPreview();
+    return;
+  }
+
+  if (file.size > MAX_PDF_SIZE_BYTES) {
+    coursePdf.value = "";
+    pdfStatus.textContent = text.pdfTooLarge;
+    renderPdfPreview();
+    return;
+  }
+
+  selectedPdf = file;
+  extractPdfText.disabled = false;
+  renderPdfPreview();
+  pdfStatus.textContent = text.pdfSelected(file.name, formatFileSize(file.size));
 });
 
-imageMode.addEventListener("click", () => {
-  imageMode.classList.add("active");
-  textMode.classList.remove("active");
-  imageMode.setAttribute("aria-selected", "true");
-  textMode.setAttribute("aria-selected", "false");
-  imageTools.hidden = false;
-  imageTools.style.display = "";
+extractPdfText.addEventListener("click", async () => {
+  if (!selectedPdf) return;
+
+  const text = uiText[currentLanguage];
+  extractPdfText.disabled = true;
+  pdfStatus.textContent = text.pdfLoading;
+
+  try {
+    const pdfReader = await loadPdfReader();
+    const result = await pdfReader.extractPdfText(selectedPdf, {
+      onProgress: ({ pageNumber, pageCount }) => {
+        pdfStatus.textContent = uiText[currentLanguage].pdfProgress(pageNumber, pageCount);
+      }
+    });
+    const extracted = result.pages
+      .map(({ pageNumber, text: pageText }) => `${uiText[currentLanguage].pageLabel(pageNumber)}\n${pageText}`)
+      .join("\n\n")
+      .trim();
+
+    if (extracted.replace(/\s/g, "").length < pdfReader.PDF_LIMITS.minimumExtractedCharacters) {
+      const error = new Error("PDF_SCANNED");
+      error.code = "PDF_SCANNED";
+      throw error;
+    }
+
+    courseText.value = extracted;
+    updateTextStats();
+    pdfStatus.textContent = uiText[currentLanguage].pdfDone(result.pageCount);
+    generateButton.focus({ preventScroll: true });
+    courseText.scrollIntoView({ behavior: "smooth", block: "center" });
+  } catch (error) {
+    pdfStatus.textContent = pdfErrorMessage(error);
+  } finally {
+    extractPdfText.disabled = !selectedPdf;
+  }
 });
 
 scanImage.addEventListener("change", () => {
@@ -1514,7 +1773,7 @@ extractText.addEventListener("click", async () => {
 });
 
 applyLanguage(currentLanguage);
-imageTools.style.display = "none";
+setInputMode("text");
 renderSavedCourses();
 courseText.addEventListener("input", updateTextStats);
 

@@ -7,7 +7,7 @@
     <title>Assistant de révision</title>
     <link rel="manifest" href="manifest.webmanifest" />
     <link rel="icon" href="assets/icon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css?v=16" />
+    <link rel="stylesheet" href="styles.css?v=17" />
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js" defer></script>
   </head>
   <body>
@@ -35,8 +35,9 @@
         <div class="layout">
           <section class="input-panel" aria-label="Cours à analyser">
             <div class="mode-tabs" role="tablist" aria-label="Type d'entrée">
-              <button id="textMode" class="tab active" type="button" role="tab" aria-selected="true" aria-controls="imageTools">Coller le texte</button>
+              <button id="textMode" class="tab active" type="button" role="tab" aria-selected="true" aria-controls="courseText">Coller le texte</button>
               <button id="imageMode" class="tab" type="button" role="tab" aria-selected="false" aria-controls="imageTools">Photo du cours</button>
+              <button id="pdfMode" class="tab" type="button" role="tab" aria-selected="false" aria-controls="pdfTools">PDF du cours</button>
             </div>
 
             <div id="imageTools" class="image-tools" hidden>
@@ -47,6 +48,17 @@
               </div>
               <button id="extractText" class="secondary" type="button" disabled>Lire le texte des images</button>
               <p id="ocrStatus" class="status" aria-live="polite"></p>
+            </div>
+
+            <div id="pdfTools" class="pdf-tools" hidden>
+              <label id="coursePdfLabel" for="coursePdf">Cours au format PDF</label>
+              <input id="coursePdf" type="file" accept="application/pdf,.pdf" />
+              <div id="pdfPreview" class="pdf-preview empty">
+                <span id="emptyPdfText">Aucun PDF sélectionné</span>
+              </div>
+              <p id="pdfPrivacy" class="file-privacy">Le PDF reste sur cet appareil. Seul le texte extrait sera utilisé lors de la génération.</p>
+              <button id="extractPdfText" class="secondary" type="button" disabled>Extraire le texte du PDF</button>
+              <p id="pdfStatus" class="status" role="status" aria-live="polite"></p>
             </div>
 
             <div class="settings-grid" aria-label="Options de révision">
@@ -87,7 +99,7 @@
             <textarea
               id="courseText"
               spellcheck="true"
-              placeholder="Colle ici le texte du cours, ou utilise une photo pour remplir ce champ automatiquement..."
+              placeholder="Colle ici le texte du cours, utilise une photo ou importe un PDF..."
             ></textarea>
             <div id="textStats" class="text-stats" aria-live="polite"></div>
             <p id="generationStatus" class="generation-status" role="status" aria-live="polite" hidden></p>
@@ -114,7 +126,7 @@
               <button id="startQuiz" class="secondary" type="button" aria-expanded="false" aria-controls="studyTools" disabled>Quiz</button>
             </div>
             <div id="friendlyOutput" class="friendly-output" aria-live="polite">
-              Colle un cours ou ajoute une photo, puis lance la génération.
+              Colle un cours, ajoute une photo ou importe un PDF, puis lance la génération.
             </div>
             <section id="studyTools" class="study-tools" role="region" hidden></section>
             <section class="saved-panel">
@@ -130,6 +142,6 @@
       </section>
     </main>
 
-    <script src="app.js?v=16"></script>
+    <script src="app.js?v=17"></script>
   </body>
 </html>
